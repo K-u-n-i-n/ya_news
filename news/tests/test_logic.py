@@ -11,7 +11,7 @@ from news.forms import BAD_WORDS, WARNING
 from news.models import Comment, News
 
 User = get_user_model()
-
+WARNING
 
 class TestCommentCreation(TestCase):
     # Текст комментария понадобится в нескольких местах кода,
