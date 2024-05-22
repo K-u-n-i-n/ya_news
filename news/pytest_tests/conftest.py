@@ -1,11 +1,20 @@
+from datetime import datetime, timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.test import Client
 from django.urls import reverse
-from datetime import datetime
 
 from news.models import Comment, News
 
 User = get_user_model()
+
+
+@pytest.fixture
+def home_url():
+    """Возвращает URL главной страницы."""
+    return reverse('news:home')
 
 
 @pytest.fixture
@@ -35,9 +44,18 @@ def comment(news, author):
 
 
 @pytest.fixture
-def client_with_login(client, author):
+def client_with_login(author):
     """Авторизует клиента с помощью созданного пользователя (автора)."""
+    client = Client()
     client.force_login(author)
+    return client
+
+
+@pytest.fixture
+def client_with_reader_login(reader):
+    """Авторизует клиента с помощью созданного пользователя (читателя)."""
+    client = Client()
+    client.force_login(reader)
     return client
 
 
@@ -48,20 +66,24 @@ def detail_url(news):
 
 
 @pytest.fixture
+def news_list():
+    """Создает новости для тестирования."""
+    news_count = settings.NEWS_COUNT_ON_HOME_PAGE + 1
+    for i in range(news_count):
+        News.objects.create(title=f'Заголовок {i}', text='Текст')
+
+
+@pytest.fixture
 def comments(news, author):
-    """
-    Создает и возвращает список из 5 комментариев к новости от одного автора.
-    """
-    comments = []
+    """Создает 5 комментариев к новости от одного автора."""
     for i in range(5):
         comment = Comment.objects.create(
             news=news,
             author=author,
-            text=f'Комментарий {i}',
-            created=datetime(2023, 1, 1, 12, 0, i)
+            text=f'Комментарий {i}'
         )
-        comments.append(comment)
-    return comments
+        comment.created = datetime.today() - timedelta(days=i)
+        comment.save()
 
 
 @pytest.fixture
