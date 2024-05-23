@@ -47,6 +47,7 @@ def comment(news, author):
 def client_with_login(author):
     """Авторизует клиента с помощью созданного пользователя (автора)."""
     client = Client()
+    client.user = author
     client.force_login(author)
     return client
 
@@ -55,6 +56,7 @@ def client_with_login(author):
 def client_with_reader_login(reader):
     """Авторизует клиента с помощью созданного пользователя (читателя)."""
     client = Client()
+    client.user = reader
     client.force_login(reader)
     return client
 

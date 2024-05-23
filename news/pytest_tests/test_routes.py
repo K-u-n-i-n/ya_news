@@ -35,11 +35,11 @@ def test_pages_availability(client, name, args):
 
 @pytest.mark.parametrize("reverse_url,parametrized_client,status", [
     (pytest.lazy_fixture('delete_url'), pytest.lazy_fixture(
-        'client_with_login'), HTTPStatus.FOUND),
+        'client_with_login'), HTTPStatus.OK),
     (pytest.lazy_fixture('delete_url'), pytest.lazy_fixture(
         'client_with_reader_login'), HTTPStatus.NOT_FOUND),
     (pytest.lazy_fixture('edit_url'), pytest.lazy_fixture(
-        'client_with_login'), HTTPStatus.FOUND),
+        'client_with_login'), HTTPStatus.OK),
     (pytest.lazy_fixture('edit_url'), pytest.lazy_fixture(
         'client_with_reader_login'), HTTPStatus.NOT_FOUND),
 ])
@@ -58,6 +58,8 @@ def test_availability_for_comment_edit_and_delete(
     Ассерты:
     - Статус ответа равен ожидаемому статусу.
     """
+    # Аутентифицируем клиент перед запросом к серверу
+    parametrized_client.force_login(parametrized_client.user)
     response = parametrized_client.get(reverse_url)
     assert response.status_code == status
 
