@@ -1,10 +1,11 @@
 from http import HTTPStatus
 
 import pytest
+
 from django.urls import reverse
 
-from news.models import Comment
 from news.forms import BAD_WORDS, WARNING
+from news.models import Comment
 
 pytestmark = pytest.mark.django_db
 
@@ -154,15 +155,15 @@ def test_user_cant_use_bad_words(client_with_login, news):
     Проверяет, что пользователь не может использовать запрещенные слова
     в комментарии.
 
-     Параметры:
-     - client_with_login: клиент с авторизованным пользователем.
-     - news: объект новости.
+    Параметры:
+    - client_with_login: клиент с авторизованным пользователем.
+    - news: объект новости.
 
-     Ассерты:
-     - В ответе присутствует форма с ошибкой в поле 'text'.
-     - Сообщение об ошибке содержит предупреждение о запрещенных словах.
-     - Количество комментариев равно 0.
-     """
+    Ассерты:
+    - В ответе присутствует форма с ошибкой в поле 'text'.
+    - Сообщение об ошибке содержит предупреждение о запрещенных словах.
+    - Количество комментариев равно 0.
+    """
     url = reverse('news:detail', args=(news.id,))
     bad_words_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
     response = client_with_login.post(url, data=bad_words_data)
