@@ -12,6 +12,18 @@ User = get_user_model()
 
 
 @pytest.fixture
+def routes():
+    """Вычисляет значения маршрутов."""
+    return {
+        'home': reverse('news:home'),
+        'detail': reverse('news:detail', args=[pytest.lazy_fixture('news')]),
+        'login': reverse('users:login'),
+        'logout': reverse('users:logout'),
+        'signup': reverse('users:signup'),
+    }
+
+
+@pytest.fixture
 def home_url():
     """Возвращает URL главной страницы."""
     return reverse('news:home')
@@ -41,6 +53,11 @@ def comment(news, author):
     return Comment.objects.create(
         news=news, author=author, text='Текст комментария'
     )
+
+
+@pytest.fixture
+def client():
+    return Client()
 
 
 @pytest.fixture
