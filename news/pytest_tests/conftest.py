@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import pytest
-
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.test import Client
@@ -48,7 +47,6 @@ def comment(news, author):
 def client_with_login(author):
     """Авторизует клиента с помощью созданного пользователя (автора)."""
     client = Client()
-    client.user = author
     client.force_login(author)
     return client
 
@@ -57,7 +55,6 @@ def client_with_login(author):
 def client_with_reader_login(reader):
     """Авторизует клиента с помощью созданного пользователя (читателя)."""
     client = Client()
-    client.user = reader
     client.force_login(reader)
     return client
 
@@ -68,12 +65,26 @@ def detail_url(news):
     return reverse('news:detail', args=[news.id])
 
 
+# @pytest.fixture
+# def news_list():
+#     """Создает новости для тестирования."""
+#     news_count = settings.NEWS_COUNT_ON_HOME_PAGE + 1
+#     for i in range(news_count):
+#         News.objects.create(title=f'Заголовок {i}', text='Текст')
+
+
 @pytest.fixture
 def news_list():
     """Создает новости для тестирования."""
     news_count = settings.NEWS_COUNT_ON_HOME_PAGE + 1
-    for i in range(news_count):
-        News.objects.create(title=f'Заголовок {i}', text='Текст')
+    news_items = [
+        News(title=f'Заголовок {i}',
+             text='Текст',
+             date=datetime.now() - timedelta(days=i)
+             )
+        for i in range(news_count)
+    ]
+    News.objects.bulk_create(news_items)
 
 
 @pytest.fixture

@@ -1,8 +1,7 @@
 from http import HTTPStatus
 
 import pytest
-
-from django.urls import reverse
+from django.contrib.auth import get_user
 
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
@@ -64,13 +63,15 @@ def test_author_can_edit_comment(client_with_login, edit_url, comment):
     - Текст комментария обновлен.
     - Автор и новость комментария остались прежними.
     """
+    original_news = comment.news
     new_text = 'Обновленный текст комментария'
     response = client_with_login.post(edit_url, {'text': new_text})
     assert response.status_code == HTTPStatus.FOUND
     comment.refresh_from_db()
+    user = get_user(client_with_login)
     assert comment.text == new_text
-    assert comment.author == comment.author
-    assert comment.news == comment.news
+    assert comment.author == user
+    assert comment.news == original_news
 
 
 def test_user_cant_edit_comment_of_another_user(
@@ -110,14 +111,15 @@ def test_anonymous_user_cant_post_comment(client, detail_url):
 
     Ассерты:
     - Статус ответа равен HTTPStatus.FOUND.
-    - Количество комментариев равно 0.
+    - Количество комментариев осталось прежним.
     """
+    original_comment_count = Comment.objects.count()
     response = client.post(
         detail_url,
         data={'text': 'Анонимный комментарий'}
     )
     assert response.status_code == HTTPStatus.FOUND
-    assert Comment.objects.count() == 0
+    assert Comment.objects.count() == original_comment_count
 
 
 def test_authorized_user_can_post_comment(
@@ -134,23 +136,24 @@ def test_authorized_user_can_post_comment(
 
     Ассерты:
     - Статус ответа равен HTTPStatus.FOUND.
-    - Количество комментариев равно 1.
+    - Количество комментариев увеличелось на 1.
     - Текст комментария соответствует отправленному.
     - Автор и новость комментария соответствуют ожиданиям.
     """
+    initial_comment_count = Comment.objects.count()
     response = client_with_login.post(
         detail_url,
         data={'text': 'Новый комментарий'}
     )
     assert response.status_code == HTTPStatus.FOUND
-    assert Comment.objects.count() == 1
+    assert Comment.objects.count() == initial_comment_count + 1
     comment = Comment.objects.first()
     assert comment.text == 'Новый комментарий'
     assert comment.news == news
     assert comment.author == author
 
 
-def test_user_cant_use_bad_words(client_with_login, news):
+def test_user_cant_use_bad_words(client_with_login, detail_url):
     """
     Проверяет, что пользователь не может использовать запрещенные слова
     в комментарии.
@@ -162,13 +165,12 @@ def test_user_cant_use_bad_words(client_with_login, news):
     Ассерты:
     - В ответе присутствует форма с ошибкой в поле 'text'.
     - Сообщение об ошибке содержит предупреждение о запрещенных словах.
-    - Количество комментариев равно 0.
+    - Количество комментариев не изменилось.
     """
-    url = reverse('news:detail', args=(news.id,))
     bad_words_data = {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
-    response = client_with_login.post(url, data=bad_words_data)
+    initial_comment_count = Comment.objects.count()
+    response = client_with_login.post(detail_url, data=bad_words_data)
     assert 'form' in response.context
     assert 'text' in response.context['form'].errors
     assert WARNING in response.context['form'].errors['text']
-    comments_count = Comment.objects.count()
-    assert comments_count == 0
+    assert Comment.objects.count() == initial_comment_count

@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 import pytest
-
 from django.urls import reverse
 
 pytestmark = pytest.mark.django_db
@@ -59,8 +58,6 @@ def test_availability_for_comment_edit_and_delete(
     Ассерты:
     - Статус ответа равен ожидаемому статусу.
     """
-    # Аутентифицируем клиент перед запросом к серверу
-    parametrized_client.force_login(parametrized_client.user)
     response = parametrized_client.get(reverse_url)
     assert response.status_code == status
 

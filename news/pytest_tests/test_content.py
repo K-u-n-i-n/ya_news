@@ -1,5 +1,4 @@
 import pytest
-
 from django.conf import settings
 
 from news.forms import CommentForm
