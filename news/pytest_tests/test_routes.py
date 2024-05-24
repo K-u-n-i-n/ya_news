@@ -5,6 +5,7 @@ from django.urls import reverse
 from pytest_lazyfixture import lazy_fixture as lf
 
 pytestmark = pytest.mark.django_db
+
 OK = HTTPStatus.OK
 
 

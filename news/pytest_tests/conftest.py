@@ -57,6 +57,7 @@ def comment(news, author):
 
 @pytest.fixture
 def client():
+    """Создаёт неавторизованного клиента для тестирования."""
     return Client()
 
 
@@ -80,14 +81,6 @@ def client_with_reader_login(reader):
 def detail_url(news):
     """Возвращает URL для детального просмотра новости."""
     return reverse('news:detail', args=[news.id])
-
-
-# @pytest.fixture
-# def news_list():
-#     """Создает новости для тестирования."""
-#     news_count = settings.NEWS_COUNT_ON_HOME_PAGE + 1
-#     for i in range(news_count):
-#         News.objects.create(title=f'Заголовок {i}', text='Текст')
 
 
 @pytest.fixture

@@ -8,6 +8,8 @@ from news.models import Comment
 
 pytestmark = pytest.mark.django_db
 
+COMMENT_TEXT = 'Новый комментарий'
+
 
 def test_author_can_delete_comment(client_with_login, delete_url):
     """
@@ -92,7 +94,7 @@ def test_user_cant_edit_comment_of_another_user(
     - Текст комментария не изменился.
     - Автор и новость комментария остались прежними.
     """
-    new_text = 'Обновленный текст комментария'
+    new_text = COMMENT_TEXT
     response = client_with_reader_login.post(edit_url, {'text': new_text})
     assert response.status_code == HTTPStatus.NOT_FOUND
     updated_comment = Comment.objects.get(id=comment.id)
@@ -116,7 +118,7 @@ def test_anonymous_user_cant_post_comment(client, detail_url):
     original_comment_count = Comment.objects.count()
     response = client.post(
         detail_url,
-        data={'text': 'Анонимный комментарий'}
+        data={'text': COMMENT_TEXT}
     )
     assert response.status_code == HTTPStatus.FOUND
     assert Comment.objects.count() == original_comment_count
@@ -140,15 +142,15 @@ def test_authorized_user_can_post_comment(
     - Текст комментария соответствует отправленному.
     - Автор и новость комментария соответствуют ожиданиям.
     """
+    Comment.objects.all().delete()
     initial_comment_count = Comment.objects.count()
     response = client_with_login.post(
         detail_url,
-        data={'text': 'Новый комментарий'}
-    )
+        data={'text': COMMENT_TEXT})
     assert response.status_code == HTTPStatus.FOUND
     assert Comment.objects.count() == initial_comment_count + 1
-    comment = Comment.objects.first()
-    assert comment.text == 'Новый комментарий'
+    comment = Comment.objects.get(text=COMMENT_TEXT)
+    assert comment.text == COMMENT_TEXT
     assert comment.news == news
     assert comment.author == author
 
