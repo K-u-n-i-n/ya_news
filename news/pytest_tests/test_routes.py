@@ -14,10 +14,10 @@ OK = HTTPStatus.OK
     (lf('edit_url'), lf('client_with_reader_login'), HTTPStatus.NOT_FOUND),
     (lf('delete_url'), lf('client_with_login'), OK),
     (lf('delete_url'), lf('client_with_reader_login'), HTTPStatus.NOT_FOUND),
-    (reverse('news:home'), lf('client'), OK),
-    (reverse('users:login'), lf('client'), OK),
-    (reverse('users:logout'), lf('client'), OK),
-    (reverse('users:signup'), lf('client'), OK),
+    (lf('home_url'), lf('client'), OK),
+    (lf('login_url'), lf('client'), OK),
+    (lf('logout_url'), lf('client'), OK),
+    (lf('signup_url'), lf('client'), OK),
 ])
 def test_availability_for_comment_edit_and_delete(
     reverse_url, parametrized_client, status
