@@ -30,7 +30,7 @@ def test_availability_for_comment_edit_and_delete(
     lf('edit_url'),
     lf('delete_url'),
 ])
-def test_redirect_for_anonymous_client(client, reverse_url):
+def test_redirect_for_anonymous_client(client, reverse_url, login_url):
     """
     Проверяет перенаправление анонимного пользователя на страницу входа
     при попытке редактирования или удаления комментария.
@@ -43,7 +43,6 @@ def test_redirect_for_anonymous_client(client, reverse_url):
     - Статус ответа равен HTTPStatus.FOUND.
     - URL перенаправления соответствует ожидаемому.
     """
-    login_url = reverse('users:login')
     redirect_url = f'{login_url}?next={reverse_url}'
     response = client.get(reverse_url)
     assert response.status_code == HTTPStatus.FOUND

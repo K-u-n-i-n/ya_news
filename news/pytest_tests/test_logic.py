@@ -51,7 +51,7 @@ def test_user_cant_delete_comment_of_another_user(
     assert Comment.objects.count() == initial_comment_count
 
 
-def test_author_can_edit_comment(client_with_login, edit_url, comment):
+def test_author_can_edit_comment(client_with_login, edit_url, comment, news):
     """
     Проверяет, что автор комментария может отредактировать свой комментарий.
 
@@ -65,7 +65,6 @@ def test_author_can_edit_comment(client_with_login, edit_url, comment):
     - Текст комментария обновлен.
     - Автор и новость комментария остались прежними.
     """
-    original_news = comment.news
     new_text = 'Обновленный текст комментария'
     response = client_with_login.post(edit_url, {'text': new_text})
     assert response.status_code == HTTPStatus.FOUND
@@ -73,7 +72,7 @@ def test_author_can_edit_comment(client_with_login, edit_url, comment):
     user = get_user(client_with_login)
     assert comment.text == new_text
     assert comment.author == user
-    assert comment.news == original_news
+    assert comment.news == news
 
 
 def test_user_cant_edit_comment_of_another_user(
